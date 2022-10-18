@@ -1,0 +1,1 @@
+# Ingress-Intel-Map-Portal-Scraper
