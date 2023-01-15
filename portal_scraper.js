@@ -55,20 +55,20 @@ function wrapper(plugin_info) {
    *     Which order should by default be used for this column. -1 means descending. Default: 1
    */
 
-  splitLatLng = function(tempLatLng){
+  splitLatLng = function (tempLatLng) {
     //LatLng(38.791153, -90.001165)
-    var commaSpot=tempLatLng.toString().indexOf(',')
-    var latLng=tempLatLng.toString().substring(7,commaSpot)+";"+tempLatLng.toString().substring(commaSpot+2,tempLatLng.toString().length-1);
+    var commaSpot = tempLatLng.toString().indexOf(',')
+    var latLng = tempLatLng.toString().substring(7, commaSpot) + ";" + tempLatLng.toString().substring(commaSpot + 2, tempLatLng.toString().length - 1);
     return latLng;
   }
-  teamFix = function(teamNumber){
+  teamFix = function (teamNumber) {
     //0=NEU,1=RES,2=ENL,3=UNK
-    var team=['NEU','RES','ENL','UNK'];return team[teamNumber];
+    var team = ['NEU', 'RES', 'ENL', 'UNK']; return team[teamNumber];
   }
 
   window.plugin.portalscraper.fields = [
     {
-      title: "Spoke-It Text",
+      title: "Portal Info",
       value: function (portal) {
         return portal.options.data.title +
           ';' + splitLatLng(portal.getLatLng()) +
@@ -369,7 +369,7 @@ function wrapper(plugin_info) {
     filters.className = 'filters';
     container.append(filters);
 
-    var length = window.plugin.portalscraper.listPortals.length;
+    /* var length = window.plugin.portalscraper.listPortals.length;
 
     ['All', 'Neutral', 'Resistance', 'Enlightened', 'Visited', 'Captured', 'Scout Controlled'].forEach(function (label, i) {
       var cell = filters.appendChild(document.createElement('div'));
@@ -411,7 +411,7 @@ function wrapper(plugin_info) {
         var count = window.plugin.portalscraper[name];
         cell.textContent = count + ' (' + Math.round(count / length * 100) + '%)';
       }
-    });
+    }); */
 
     var tableDiv = document.createElement('div');
     tableDiv.className = 'table-container';
@@ -421,10 +421,12 @@ function wrapper(plugin_info) {
     table.className = 'portals';
     tableDiv.appendChild(table);
 
+
     var thead = table.appendChild(document.createElement('thead'));
     var row = thead.insertRow(-1);
 
     var cell = row.appendChild(document.createElement('th'));
+
     //cell.textContent = 'number#';
 
     window.plugin.portalscraper.fields.forEach(function (field, i) {
@@ -464,10 +466,23 @@ function wrapper(plugin_info) {
       + 'by that faction or on the number behind the factions to show all but those portals. '
       + 'Click on <b>Visited, Captured or Scout Controlled</b> to only show portals the user has a history for '
       + 'or on the number to hide those. </div>'); */
-    container.append('<div class="disclaimer">This will be downloaded to your computer.</div>');
+      container.prepend('<div style="padding: 2px;max-width: 100px;color: #FFCE00;border: 1px solid #FFCE00;background-color: rgba(8, 48, 78, 0.9);text-align:center;" <button id = "download_button" onclick="downloadFile()" class="download_button">Download Data</button></div>');
 
 
     return container;
+  }
+
+  downloadFile = function () {
+    var hiddenElement = document.createElement('a');
+    var textToSave="";
+    for (var i = 0; i < window.plugin.portalscraper.listPortals.length; i++) {
+      textToSave=textToSave.concat(window.plugin.portalscraper.listPortals[i].values[0].toString()+"\n");
+      console.log(textToSave);
+    }
+    hiddenElement.href = 'data:text,' + encodeURIComponent(textToSave);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'ScrapedPortals.txt';
+    hiddenElement.click();
   }
 
   // portal link - single click: select portal
