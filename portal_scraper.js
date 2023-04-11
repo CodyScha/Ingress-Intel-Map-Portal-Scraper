@@ -54,8 +54,9 @@ function wrapper(plugin_info) {
    *     Which order should by default be used for this column. -1 means descending. Default: 1
    */
 
-  splitLatLng = function (tempLatLng) {//uesed to split the latitude and longitude into an easier to read string
+  splitLatLng = function (tempLatLng) {//used to split the latitude and longitude into an easier to read string
     //LatLng(38.791153, -90.001165)
+    //to: 38.791153;-90.001165
     var commaSpot = tempLatLng.toString().indexOf(",");
     var latLng =
       tempLatLng.toString().substring(7, commaSpot) +
@@ -71,7 +72,7 @@ function wrapper(plugin_info) {
     return team[teamNumber];
   };
 
-  window.plugin.portalscraper.fields = [
+  window.plugin.portalscraper.fields = [//The columns on the popup
     {
       title: "Portal Info",
       value: function (portal) {//gets the portal info for download
