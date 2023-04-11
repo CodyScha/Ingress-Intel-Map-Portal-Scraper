@@ -2,7 +2,7 @@
 // @author         Ingress Max Fielding Agency
 // @name           IITC plugin: Portal Scraper
 // @category       Info
-// @version        0.1.0
+// @version        1.0.0
 // @description    Display and download a list of portals on screen as a text file
 // @id             portal-scraper
 // @namespace      https://github.com/CodyScha/Ingress-Intel-Map-Portal-Scraper.git
@@ -17,7 +17,7 @@ function wrapper(plugin_info) {
   //PLUGIN AUTHORS: writing a plugin outside of the IITC build environment? if so, delete these lines!!
   //(leaving them in place might break the 'About IITC' page or break update checks)
   plugin_info.buildName = "release";
-  plugin_info.dateTimeVersion = "2022-11-14-170842";
+  plugin_info.dateTimeVersion = "2023-04-10-230410";
   plugin_info.pluginId = "portal-scraper";
   //END PLUGIN AUTHORS NOTE
 
@@ -54,7 +54,7 @@ function wrapper(plugin_info) {
    *     Which order should by default be used for this column. -1 means descending. Default: 1
    */
 
-  splitLatLng = function (tempLatLng) {
+  splitLatLng = function (tempLatLng) {//uesed to split the latitude and longitude into an easier to read string
     //LatLng(38.791153, -90.001165)
     var commaSpot = tempLatLng.toString().indexOf(",");
     var latLng =
@@ -65,7 +65,7 @@ function wrapper(plugin_info) {
         .substring(commaSpot + 2, tempLatLng.toString().length - 1);
     return latLng;
   };
-  teamFix = function (teamNumber) {
+  teamFix = function (teamNumber) {//prints out the name instead of the number that is given
     //0=NEU,1=RES,2=ENL,3=UNK
     var team = ["NEU", "RES", "ENL", "UNK"];
     return team[teamNumber];
@@ -74,12 +74,11 @@ function wrapper(plugin_info) {
   window.plugin.portalscraper.fields = [
     {
       title: "Portal Info",
-      value: function (portal) {
+      value: function (portal) {//gets the portal info for download
         return (
           portal.options.data.title +
           ";" +
           splitLatLng(portal.getLatLng()) +
-          //';'+portal.options.data.title+
           ";" +
           teamFix(portal.options.team) +
           ";" +
@@ -87,17 +86,13 @@ function wrapper(plugin_info) {
           ";+"
         );
       },
-      format: function (cell, portal, value) {
+      format: function (cell, portal, value) {//formats left column
         $(cell).append(value.trim());
-        // .prepend(plugin.portalscraper.getPortalLink(portal));
-        /* .text([';NEU', ';RES', ';ENL'][team])
-          .append(health)
-          .append(res) */
       },
     },
     {
       title: "Portal Title",
-      value: function (portal) {
+      value: function (portal) {//List of portals that you can click on to jump to
         return portal.options.data.title;
       },
       sortValue: function (value, portal) {
@@ -110,167 +105,7 @@ function wrapper(plugin_info) {
           .addClass("portalTitle");
       },
     },
-    /*
-    {
-      title: "Level",
-      value: function (portal) {
-        return portal.options.data.level;
-      },
-      format: function (cell, portal, value) {
-        $(cell)
-          .css("background-color", COLORS_LVL[value])
-          .text(";" + "L" + value);
-      },
-      defaultOrder: -1,
-    },
-    {
-      title: "Team",
-      value: function (portal) {
-        return portal.options.team;
-      },
-      format: function (cell, portal, value) {
-        $(cell).text([";NEU", ";RES", ";ENL"][value]);
-      },
-    },
-    {
-      title: "Health",
-      value: function (portal) {
-        return portal.options.data.health;
-      },
-      sortValue: function (value, portal) {
-        return portal.options.team === TEAM_NONE ? -1 : value;
-      },
-      format: function (cell, portal, value) {
-        $(cell)
-          .addClass("alignR")
-          .text(portal.options.team === TEAM_NONE ? "-" : value + "%");
-      },
-      defaultOrder: -1,
-    },
-    {
-      title: "Res",
-      value: function (portal) {
-        return portal.options.data.resCount;
-      },
-      format: function (cell, portal, value) {
-        $(cell).addClass("alignR").text(value);
-      },
-      defaultOrder: -1,
-    },
-    ,
-    {
-      title: "Links",
-      value: function (portal) {
-        return window.getPortalLinks(portal.options.guid);
-      },
-      sortValue: function (value, portal) {
-        return value.in.length + value.out.length;
-      },
-      format: function (cell, portal, value) {
-        $(cell)
-          .addClass("alignR")
-          .addClass("help")
-          .attr(
-            "title",
-            "In:\t" + value.in.length + "\nOut:\t" + value.out.length
-          )
-          .text(value.in.length + value.out.length);
-      },
-      defaultOrder: -1,
-    },
-    {
-      title: "Fields",
-      value: function (portal) {
-        return getPortalFieldsCount(portal.options.guid);
-      },
-      format: function (cell, portal, value) {
-        $(cell).addClass("alignR").text(value);
-      },
-      defaultOrder: -1,
-    },
-    {
-      title: "AP",
-      value: function (portal) {
-        var links = window.getPortalLinks(portal.options.guid);
-        var fields = getPortalFieldsCount(portal.options.guid);
-        return portalApGainMaths(
-          portal.options.data.resCount,
-          links.in.length + links.out.length,
-          fields
-        );
-      },
-      sortValue: function (value, portal) {
-        return value.enemyAp;
-      },
-      format: function (cell, portal, value) {
-        var title = "";
-        if (teamStringToId(PLAYER.team) === portal.options.team) {
-          title +=
-            "Friendly AP:\t" +
-            value.friendlyAp +
-            "\n" +
-            "- deploy " +
-            (8 - portal.options.data.resCount) +
-            " resonator(s)\n" +
-            "- upgrades/mods unknown\n";
-        }
-        title +=
-          "Enemy AP:\t" +
-          value.enemyAp +
-          "\n" +
-          "- Destroy AP:\t" +
-          value.destroyAp +
-          "\n" +
-          "- Capture AP:\t" +
-          value.captureAp;
-
-        $(cell)
-          .addClass("alignR")
-          .addClass("help")
-          .prop("title", title)
-          .html(digits(value.enemyAp));
-      },
-      defaultOrder: -1,
-    },
-    {
-      title: "V/C",
-      value: function (portal) {
-        var history = portal.options.data.history;
-        if (history) {
-          return history.captured ? 2 : history.visited ? 1 : 0;
-        }
-        return -1;
-      },
-      format: function (cell, portal, value) {
-        if (value === -1) {
-          return;
-        }
-        $(cell).addClass([
-          "history",
-          ["unvisited", "visited", "captured"][value],
-        ]);
-        $(cell).append('<div class="icon"></div>');
-      },
-    },
-    {
-      title: "S",
-      value: function (portal) {
-        var history = portal.options.data.history;
-        if (history) {
-          return history.scoutControlled ? 1 : 0;
-        }
-        return -1;
-      },
-      format: function (cell, portal, value) {
-        if (value === -1) {
-          return;
-        }
-        $(cell).addClass(["history", ["unvisited", "scoutControlled"][value]]);
-        $(cell).append('<div class="icon"></div>');
-      },
-    },
-
-    */
+    
   ];
 
   //fill the listPortals array with portals avaliable on the map (level filtered portals will not appear in the table)
@@ -441,6 +276,7 @@ function wrapper(plugin_info) {
     }
 
     */
+   //Download Data button creation
     var container = $("<div>");
 
     filters = document.createElement("div");
@@ -449,21 +285,11 @@ function wrapper(plugin_info) {
     dl_button = document.createElement("button");
     dl_button.innerHTML =
       '<button id = "download_button" onclick="downloadFile()" class="hoverr" >Download Data</button>';
-    // dl_button.innerText = "Download Data";
-    // dl_button.className = "hoverr";
-    // dl_button.id = "download_button";
 
     container.append(filters);
-    // '<div style="padding: 2px;max-width: 100px;color: #FFCE00;border: 1px solid #FFCE00;background-color: rgba(8, 48, 78, 0.9);text-align:center;" <button id = "download_button" onclick="downloadFile()" class="download_button" >Download Data</button></div>'
-
+    
     container.append(dl_button);
-
-    // $("#download_button").on("click", function () {
-    //   downloadFile();
-    // });
-
-    // var button = $("#download_button");
-    // button.addClass("hoverr");
+//This is also for sorting
     /*
 
     var length = window.plugin.portalscraper.listPortals.length;
@@ -562,7 +388,7 @@ function wrapper(plugin_info) {
       }
     });
     */
-
+    //creates the areas for the table
     var tableDiv = document.createElement("div");
     tableDiv.className = "table-container";
     container.append(tableDiv);
@@ -577,7 +403,7 @@ function wrapper(plugin_info) {
     var cell = row.appendChild(document.createElement("th"));
 
     //cell.textContent = 'number#';
-
+    //loops throught the portals to sort
     window.plugin.portalscraper.fields.forEach(function (field, i) {
       cell = row.appendChild(document.createElement("th"));
       cell.textContent = field.title;
@@ -608,7 +434,7 @@ function wrapper(plugin_info) {
         });
       }
     });
-
+    //a loop function to create the table rows
     portals.forEach(function (obj, i) {
       var row = obj.row;
       if (row.parentNode) row.parentNode.removeChild(row);
@@ -635,6 +461,7 @@ function wrapper(plugin_info) {
   //   $(this).css("background-color", "red");
   // });
 
+  //our function for downloading the data of the left column as a file
   downloadFile = function () {
     var hiddenElement = document.createElement("a");
     var textToSave = "";
@@ -677,13 +504,13 @@ function wrapper(plugin_info) {
     });
     return link;
   };
-
+  //display the pane of info
   window.plugin.portalscraper.onPaneChanged = function (pane) {
     if (pane === "plugin-portalscraper")
       window.plugin.portalscraper.displayPL();
     else $("#portalscraper").remove();
   };
-
+  //The CSS for the pane popup
   var setup = function () {
     if (window.useAppPanes()) {
       app.addPane("plugin-portalsraper", "Portal Scraper", "ic_action_paste");
